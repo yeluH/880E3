@@ -126,9 +126,9 @@ ggplot(data = move1f_filter, aes(X, Y)) +
 ## Task 2: Specify and apply threshold d
 ```{r task2, echo = TRUE, warning = FALSE, message = FALSE}
 ## Explore the value of stepMean
-hist(move1f_filter$stepMean)
-boxplot(move1f_filter$stepMean)
-summary(move1f_filter$stepMean)
+hist(move1f$stepMean)
+boxplot(move1f$stepMean)
+summary(move1f$stepMean)
 ## Use the mean of stepMean values as threshold
 d <- mean(move1f$stepMean)
 ## Set to static column
@@ -142,14 +142,81 @@ d <- mean(move1f$stepMean)
 
 ## Task 3: Visualize segmented trajectories
 ```{r task3, echo = TRUE, warning = FALSE, message = FALSE}
-
-
-
+ggplot(data = move1f, aes(X, Y, color = static)) +
+    geom_path() +
+    geom_point() +
+    # coord_equal() +
+    theme(legend.position = "right")
 ```
 
 ## Task 4: Segment-based analysis
 ```{r task4, echo = TRUE, warning = FALSE, message = FALSE}
-#
+## Assign segment ID for each segment
+rle_id <- function(vec) {
+    x <- rle(vec)$lengths
+    as.factor(rep(seq_along(x), times = x))
+}
+## Name it _f1 as _filter1, different from _filter
+move1f_f1 <- move1f |>
+    mutate(segment_id = rle_id(static))
+head(move1f_f1)
+## Plot the segments based on segment ID
+ggplot(data = move1f_f1, aes(X, Y, color = segment_id)) +
+    geom_path() +
+    geom_point() + 
+    # coord_equal() +
+    theme(legend.position = "right", legend.key.size = unit(0.5,'cm'), legend.text = element_text(size = 5))
+## Calculate the duration time for each segment
+move1f_f1 <- move1f_f1 %>% group_by(segment_id) %>% mutate(duration = max(Time) - min(Time))
+## Select the segments which has a duration more than five minutes
+move1f_f1_5min <- move1f_f1[move1f_f1$duration >= 300,]
+unique(move1f_f1_5min$segment_id)
+unique(move1f_f1_5min$duration)
+
+## Plot the segments which has a duration more than 5 minutes
+ggplot(data = move1f_f1_5min, aes(X, Y, color = segment_id)) +
+    geom_path() +
+    geom_point() + 
+    # coord_equal() +
+    theme(legend.position = "right")
+
+## Plot each segment
+idlist <- unique(move1f_f1_5min$segment_id)
+move1f_f1_5min_1 <- move1f_f1_5min[move1f_f1_5min$segment_id == idlist[1],]
+ggplot(data = move1f_f1_5min_1, aes(X, Y)) +
+    geom_path() +
+    geom_point() +
+    ggtitle("segment id = 11")
+
+move1f_f1_5min_2 <- move1f_f1_5min[move1f_f1_5min$segment_id == idlist[2],]
+ggplot(data = move1f_f1_5min_2, aes(X, Y)) +
+    geom_path() +
+    geom_point() +
+    ggtitle("segment id = 27")
+
+move1f_f1_5min_3 <- move1f_f1_5min[move1f_f1_5min$segment_id == idlist[3],]
+ggplot(data = move1f_f1_5min_3, aes(X, Y)) +
+    geom_path() +
+    geom_point() +
+    ggtitle("segment id = 30")
+
+move1f_f1_5min_4 <- move1f_f1_5min[move1f_f1_5min$segment_id == idlist[4],]
+ggplot(data = move1f_f1_5min_4, aes(X, Y)) +
+    geom_path() +
+    geom_point() +
+    ggtitle("segment id = 52")
+
+move1f_f1_5min_5 <- move1f_f1_5min[move1f_f1_5min$segment_id == idlist[5],]
+ggplot(data = move1f_f1_5min_5, aes(X, Y)) +
+    geom_path() +
+    geom_point() +
+    ggtitle("segment id = 62")
+
+move1f_f1_5min_6 <- move1f_f1_5min[move1f_f1_5min$segment_id == idlist[6],]
+ggplot(data = move1f_f1_5min_6, aes(X, Y)) +
+    geom_path() +
+    geom_point() +
+    ggtitle("segment id = 73")
 
 ```
 
