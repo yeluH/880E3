@@ -1,0 +1,70 @@
+---
+title: "E3Task"
+author: 'Author: Yelu He'
+date: "2023-05-10"
+output: html_document
+---
+## Preparation
+```{r setup, echo = FALSE, warning=FALSE, message=FALSE}
+## Prepare the library for further use
+library(readr)
+library(dplyr)
+library(ggplot2)
+library(sf)
+library(terra)
+library(lubridate)
+library(zoo)
+```
+
+## Task 0: Import data and preparation
+```{r task0, echo = TRUE, warning = FALSE, message = FALSE}
+## Load the data
+wildschwein_BE <- read_delim("wildschwein_BE_2056.csv", ",")
+
+## Use right coordinate system and preserve original E/N columns
+wildschwein_BE <- st_as_sf(wildschwein_BE, coords = c("E", "N"), crs = 2056, remove = FALSE)
+```
+
+
+## Task 1: Segmentation
+```{r task1, echo = TRUE, warning = FALSE, message = FALSE}
+
+
+```
+
+## Task 2: Specify and apply threshold d
+```{r task2, echo = TRUE, warning = FALSE, message = FALSE}
+
+
+
+```
+
+## Task 3: Visualize segmented trajectories
+```{r task3, echo = TRUE, warning = FALSE, message = FALSE}
+
+
+
+```
+
+## Task 4: Segment-based analysis
+```{r task4, echo = TRUE, warning = FALSE, message = FALSE}
+#
+
+```
+
+## Task 5: Similarity measures
+```{r task5, echo = TRUE, warning = FALSE, message = FALSE}
+
+
+
+
+```
+
+
+## Task 6: Calculate similarity
+```{r task6, echo = TRUE, warning = FALSE, message = FALSE}
+
+
+
+```
+
