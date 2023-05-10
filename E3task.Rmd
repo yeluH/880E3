@@ -4,7 +4,7 @@ author: 'Author: Yelu He'
 date: "2023-05-10"
 output: html_document
 ---
-## Preparation
+## Library preparation
 ```{r setup, echo = FALSE, warning=FALSE, message=FALSE}
 ## Prepare the library for further use
 library(readr)
@@ -19,10 +19,63 @@ library(zoo)
 ## Task 0: Import data and preparation
 ```{r task0, echo = TRUE, warning = FALSE, message = FALSE}
 ## Load the data
-wildschwein_BE <- read_delim("wildschwein_BE_2056.csv", ",")
+wildschwein <- read_delim("wildschwein_BE_2056.csv", ",")
 
+## select data of sabi in a specific time range
+sabi <- wildschwein %>%
+    filter(TierName == "Sabi", DatetimeUTC >= "2015-07-01", DatetimeUTC < "2015-07-03")
+
+## View the map of sabi
+sabi_sf <- st_as_sf(sabi, coords = c("E", "N"), crs = 2056, remove = FALSE)
+ggplot(sabi_sf, aes(x = sabi_sf$E, 
+                    y = sabi$N)) + 
+  geom_point() + 
+  geom_path()
+
+## Specify a temporal window
+## Measure distance from every point to every other point within the temporal window
+sabi <- sabi %>%
+  mutate(
+        nMinus2 = sqrt((lag(E, 2) - E)^2 + (lag(N, 2) - N)^2), # distance to pos -30 minutes
+        nMinus1 = sqrt((lag(E, 1) - E)^2 + (lag(N, 1) - N)^2), # distance to pos -15 minutes
+        nPlus1  = sqrt((E - lead(E, 1))^2 + (N - lead(N, 1))^2), # distance to pos +15 mintues
+        nPlus2  = sqrt((E - lead(E, 2))^2 + (N - lead(N, 2))^2) # distance to pos +30 minutes
+    )
+sabi <- sabi |>
+    rowwise() |>
+    mutate(
+        stepMean = mean(c(nMinus2, nMinus1, nPlus1, nPlus2))
+    ) |>
+    ungroup()
+sabi
+
+## Remove static points
+sabi <- sabi |>
+    ungroup() |>
+    mutate(static = stepMean < mean(stepMean, na.rm = TRUE))
+
+sabi_filter <- sabi |>
+    filter(!static)
+
+sabi_filter |>
+    ggplot(aes(E, N)) +
+    geom_path() +
+    geom_point() +
+    coord_fixed() +
+    theme(legend.position = "bottom")
+
+# Preparation
+## Load the data
+move0 <- read_delim("movementdata/yelu_dataset_01.csv", ";")
 ## Use right coordinate system and preserve original E/N columns
-wildschwein_BE <- st_as_sf(wildschwein_BE, coords = c("E", "N"), crs = 2056, remove = FALSE)
+move0 <- st_as_sf(move0, coords = c("Longitude", "Latitude"), crs = 2056, remove = FALSE)
+## Select needed columns
+move1 <- select(move0, Date, Time, Latitude, Longitude, geometry)
+head(move1)
+move1_coordinates <- st_coordinates(move1)
+move1 <- cbind(move1, move1_coordinates)
+move1f <- move1[move1$Date == '25.04.2023',]
+
 ```
 
 
