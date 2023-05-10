@@ -81,13 +81,61 @@ move1f <- move1[move1$Date == '25.04.2023',]
 
 ## Task 1: Segmentation
 ```{r task1, echo = TRUE, warning = FALSE, message = FALSE}
+## View the map of records
+ggplot(move1f, 
+       aes(x = move1f$X, 
+           y = move1f$Y)) +
+  geom_point() +
+  geom_path()
 
+## Specify a temporal window
+## Measure distance from every point to every other point within the temporal window
+move1f <- move1f %>%
+  mutate(
+        nMinus2 = sqrt((lag(X, 2) - X)^2 + (lag(Y, 2) - Y)^2), # distance to pos -30 minutes
+        nMinus1 = sqrt((lag(X, 1) - X)^2 + (lag(Y, 1) - Y)^2), # distance to pos -15 minutes
+        nPlus1  = sqrt((X - lead(X, 1))^2 + (Y - lead(Y, 1))^2), # distance to pos +15 mintues
+        nPlus2  = sqrt((X - lead(X, 2))^2 + (Y - lead(Y, 2))^2) # distance to pos +30 minutes
+    )
+
+
+move1f <- move1f %>%
+    rowwise() %>%
+    mutate(
+        stepMean = mean(c(nMinus2, nMinus1, nPlus1, nPlus2))
+    ) %>%
+    ungroup()
+move1f
+
+## Remove static points
+move1f <- move1f |>
+    ungroup() |>
+    mutate(static = stepMean < mean(stepMean, na.rm = TRUE))
+
+move1f_filter <- move1f %>%
+    filter(!static)
+
+ggplot(data = move1f_filter, aes(X, Y)) +
+    geom_path() +
+    geom_point() +
+    # coord_fixed() +
+    theme(legend.position = "bottom")
 
 ```
 
 ## Task 2: Specify and apply threshold d
 ```{r task2, echo = TRUE, warning = FALSE, message = FALSE}
-
+## Explore the value of stepMean
+hist(move1f_filter$stepMean)
+boxplot(move1f_filter$stepMean)
+summary(move1f_filter$stepMean)
+## Use the mean of stepMean values as threshold
+d <- mean(move1f$stepMean)
+## Set to static column
+# move1f <- move1f |>
+#     ungroup() |>
+#     mutate(static = stepMean < mean(stepMean,
+#           na.rm = TRUE))
 
 
 ```
