@@ -14,6 +14,7 @@ library(sf)
 library(terra)
 library(lubridate)
 library(zoo)
+library(ggpubr)
 ```
 
 ## Task 0: Import data and preparation
@@ -222,9 +223,53 @@ ggplot(data = move1f_f1_5min_6, aes(X, Y)) +
 
 ## Task 5: Similarity measures
 ```{r task5, echo = TRUE, warning = FALSE, message = FALSE}
+## Load the data
+pedestrian <- read_delim("pedestrian.csv", ",")
+pedestrian <- st_as_sf(pedestrian, 
+                       coords = c("E", "N"),
+                       crs = 2056, 
+                       remove = FALSE)
+ggplot(pedestrian, 
+       aes(x = pedestrian$E, 
+           y = pedestrian$N)) + 
+  geom_point() + 
+  geom_path()
 
+ped1 <- pedestrian[pedestrian$TrajID == '1',]
+ped2 <- pedestrian[pedestrian$TrajID == '2',]
+ped3 <- pedestrian[pedestrian$TrajID == '3',]
+ped4 <- pedestrian[pedestrian$TrajID == '4',]
+ped5 <- pedestrian[pedestrian$TrajID == '5',]
+ped6 <- pedestrian[pedestrian$TrajID == '6',]
 
+pped1 <- ggplot(ped1, 
+                aes(x = ped1$E, y = ped1$N)) +
+  geom_point() + 
+  geom_path()
+pped2 <- ggplot(ped2, 
+                aes(x = ped2$E, y = ped2$N)) +
+  geom_point() + 
+  geom_path()
+pped3 <- ggplot(ped3, 
+                aes(x = ped3$E, y = ped3$N)) +
+  geom_point() + 
+  geom_path()
+pped4 <- ggplot(ped4, 
+                aes(x = ped4$E, y = ped4$N)) +
+  geom_point() + 
+  geom_path()
+pped5 <- ggplot(ped5, 
+                aes(x = ped5$E, y = ped5$N)) +
+  geom_point() + 
+  geom_path()
+pped6 <- ggplot(ped6, 
+                aes(x = ped6$E, y = ped6$N)) +
+  geom_point() + 
+  geom_path()
 
+ggarrange(pped1, pped2, pped3, 
+          pped4, pped5, pped6,
+          ncol = 2, nrow = 3)
 
 ```
 
