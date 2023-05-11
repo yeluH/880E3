@@ -15,6 +15,8 @@ library(terra)
 library(lubridate)
 library(zoo)
 library(ggpubr)
+library(SimilarityMeasures)
+
 ```
 
 ## Task 0: Import data and preparation
@@ -276,8 +278,117 @@ ggarrange(pped1, pped2, pped3,
 
 ## Task 6: Calculate similarity
 ```{r task6, echo = TRUE, warning = FALSE, message = FALSE}
+# install.packages("SimilarityMeasures")
+# library(SimilarityMeasures)
 
+## Before calculating similarity measures, I think trajectory 1 and 6 are the most similar pairs.
 
+# Convert pedestrian data for each trajectory as matrix
+p1 <- data.matrix(data.frame(ped1$E, ped1$N))
+p2 <- data.matrix(data.frame(ped2$E, ped2$N))
+p3 <- data.matrix(data.frame(ped3$E, ped3$N))
+p4 <- data.matrix(data.frame(ped4$E, ped4$N))
+p5 <- data.matrix(data.frame(ped5$E, ped5$N))
+p6 <- data.matrix(data.frame(ped6$E, ped6$N))
+
+# Similarity measures: DTW
+sm_dtw <- c()
+sm_dtw[1] <- DTW(p1, p2, pointSpacing = 1)
+sm_dtw[2] <- DTW(p1, p3, pointSpacing = 1)
+sm_dtw[3] <- DTW(p1, p4, pointSpacing = 1)
+sm_dtw[4] <- DTW(p1, p5, pointSpacing = 1)
+sm_dtw[5] <- DTW(p1, p6, pointSpacing = 1)
+names <- as.character(c(2:6))
+sm_dtw_df <- data.frame(cbind(names, sm_dtw))
+sm_dtw_df
+p_dtw <- ggplot(sm_dtw_df, aes(x=names, y = sm_dtw, fill = names)) +  
+  geom_bar(stat = "identity") +
+  ggtitle("DTW") + 
+  theme(plot.title = element_text(hjust = 0.5)) +
+  theme(legend.position = "none") +
+  scale_fill_manual(values = c("2" = "coral", 
+                               "3" = "lavender",
+                               "4" = "skyblue",
+                               "5" = "khaki",
+                               "6" = "seagreen3"))
+# Similarity measures: EditDist
+sm_ed <- c()
+sm_ed[1] <- EditDist(p1, p2, pointDistance = 15)
+sm_ed[2] <- EditDist(p1, p3, pointDistance = 15)
+sm_ed[3] <- EditDist(p1, p4, pointDistance = 15)
+sm_ed[4] <- EditDist(p1, p5, pointDistance = 15)
+sm_ed[5] <- EditDist(p1, p6, pointDistance = 15)
+sm_ed
+sm_ed_df <- data.frame(cbind(names, sm_ed))
+sm_ed_df
+p_ed <- ggplot(sm_ed_df, aes(x=names, y = sm_ed, fill = names)) +  
+  geom_bar(stat = "identity") +
+  ggtitle("EditDist") + 
+  theme(plot.title = element_text(hjust = 0.5)) +
+  theme(legend.position = "none") +
+  scale_fill_manual(values = c("2" = "coral", 
+                               "3" = "lavender",
+                               "4" = "skyblue",
+                               "5" = "khaki",
+                               "6" = "seagreen3"))
+# Similarity measures: Frechet
+sm_fr <- c()
+sm_fr[1] <- Frechet(p1, p2, testLeash = -1)
+sm_fr[2] <- Frechet(p1, p3, testLeash = -1)
+sm_fr[3] <- Frechet(p1, p4, testLeash = -1)
+sm_fr[4] <- Frechet(p1, p5, testLeash = -1)
+sm_fr[5] <- Frechet(p1, p6, testLeash = -1)
+sm_fr
+sm_fr_df <- data.frame(cbind(names, sm_fr))
+sm_fr_df
+sm_fr_df$sm_fr <- round(as.numeric(sm_fr_df$sm_fr), digits = 2)
+p_fr <- ggplot(sm_fr_df, aes(x=names, y = sm_fr, fill = names)) +  
+  geom_bar(stat = "identity") +
+  ggtitle("Frechet") + 
+  theme(plot.title = element_text(hjust = 0.5)) +
+  theme(legend.position = "none") +
+  scale_fill_manual(values = c("2" = "coral", 
+                               "3" = "lavender",
+                               "4" = "skyblue",
+                               "5" = "khaki",
+                               "6" = "seagreen3"))
+# Similarity measures: LCSS
+sm_lc <- c()
+sm_lc[1] <- LCSS(p1, p2, pointSpacing = 1,
+                pointDistance = 20,
+                errorMarg = 2, 
+                returnTrans = FALSE)
+sm_lc[2] <- LCSS(p1, p3, pointSpacing = 1,
+                pointDistance = 20,
+                errorMarg = 2, 
+                returnTrans = FALSE)
+sm_lc[3] <- LCSS(p1, p4, pointSpacing = 1,
+                pointDistance = 20,
+                errorMarg = 2, 
+                returnTrans = FALSE)
+sm_lc[4] <- LCSS(p1, p5, pointSpacing = 1,
+                pointDistance = 20,
+                errorMarg = 2, 
+                returnTrans = FALSE)
+sm_lc[5] <- LCSS(p1, p6, pointSpacing = 1,
+                pointDistance = 20,
+                errorMarg = 2, 
+                returnTrans = FALSE)
+sm_lc
+sm_lc_df <- data.frame(cbind(names, sm_lc))
+sm_lc_df
+p_lc <- ggplot(sm_lc_df, aes(x=names, y = sm_lc, fill = names)) +  
+  geom_bar(stat = "identity") +
+  ggtitle("LCSS") + 
+  theme(plot.title = element_text(hjust = 0.5)) +
+  theme(legend.position = "none") +
+  scale_fill_manual(values = c("2" = "coral", 
+                               "3" = "lavender",
+                               "4" = "skyblue",
+                               "5" = "khaki",
+                               "6" = "seagreen3"))
+ggarrange(p_dtw, p_ed, p_fr, p_lc,
+          ncol = 2, nrow = 2)
 
 ```
 
