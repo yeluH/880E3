@@ -2,7 +2,9 @@
 title: "E3Task"
 author: 'Author: Yelu He'
 date: "2023-05-10"
-output: html_document
+output:
+  pdf_document: default
+  html_document: default
 ---
 ## Library preparation
 ```{r setup, echo = FALSE, warning=FALSE, message=FALSE}
@@ -301,6 +303,7 @@ sm_dtw[5] <- DTW(p1, p6, pointSpacing = 1)
 names <- as.character(c(2:6))
 sm_dtw_df <- data.frame(cbind(names, sm_dtw))
 sm_dtw_df
+sm_dtw_df$sm_dtw <- round(as.numeric(sm_dtw_df$sm_dtw), digits = 2)
 p_dtw <- ggplot(sm_dtw_df, aes(x=names, y = sm_dtw, fill = names)) +  
   geom_bar(stat = "identity") +
   ggtitle("DTW") + 
